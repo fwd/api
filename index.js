@@ -235,6 +235,25 @@ module.exports = {
 
 							response = response || {}
 
+							if (item.obfuscate && !localhost) {
+
+								var settings = typeof item.obfuscate === "object" ? item.obfuscate : {
+								    compact: false,
+								    controlFlowFlattening: true,
+								    controlFlowFlatteningThreshold: 1,
+								    numbersToExpressions: true,
+								    simplify: true,
+								    shuffleStringArray: true,
+								    splitStrings: true,
+								    stringArrayThreshold: 1
+								}
+
+								var obfuscationResult = require('javascript-obfuscator').obfuscate(response.data, settings)
+
+								response.data = obfuscationResult.getObfuscatedCode()
+
+							}
+
 							if (item.minify && !localhost) {
 
 								if (item.minify === 'js') {
@@ -255,25 +274,6 @@ module.exports = {
 									})
 
 								}
-
-							}
-
-							if (item.obfuscate && !localhost) {
-
-								var settings = typeof item.obfuscate === "object" ? item.obfuscate : {
-								    compact: false,
-								    controlFlowFlattening: true,
-								    controlFlowFlatteningThreshold: 1,
-								    numbersToExpressions: true,
-								    simplify: true,
-								    shuffleStringArray: true,
-								    splitStrings: true,
-								    stringArrayThreshold: 1
-								}
-
-								var obfuscationResult = require('javascript-obfuscator').obfuscate(response.data, settings)
-
-								response.data = obfuscationResult.getObfuscatedCode()
 
 							}
 
