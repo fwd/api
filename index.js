@@ -240,7 +240,7 @@ module.exports = {
 								if (item.minify === 'js') {
 
 									const minify = require('@node-minify/core');
-									const htmlMinifier = require('@node-minify/html-minifier');
+									// const htmlMinifier = require('@node-minify/html-minifier');
 									const uglifyES = require('@node-minify/uglify-es');
 
 									response.data = await minify({
@@ -255,6 +255,25 @@ module.exports = {
 									})
 
 								}
+
+							}
+
+							if (item.obfuscate && !localhost) {
+
+								var settings = typeof item.obfuscate === "object" ? item.obfuscate : {
+								    compact: false,
+								    controlFlowFlattening: true,
+								    controlFlowFlatteningThreshold: 1,
+								    numbersToExpressions: true,
+								    simplify: true,
+								    shuffleStringArray: true,
+								    splitStrings: true,
+								    stringArrayThreshold: 1
+								}
+
+								var obfuscationResult = require('javascript-obfuscator').obfuscate(response.data, settings)
+
+								response.data = obfuscationResult.getObfuscatedCode()
 
 							}
 
