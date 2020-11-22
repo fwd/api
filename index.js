@@ -52,7 +52,7 @@ module.exports = {
 		}
 
 		if (Array.isArray(endpoints)) {
-			this.endpoints = endpoints
+			endpoints.map(a => this.endpoints.push(a))
 			return
 		}
 
