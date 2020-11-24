@@ -235,6 +235,11 @@ module.exports = {
 
 							response = response || {}
 
+							if (response && response.redirect) {
+								res.redirect(response.redirect)
+								return
+							}
+
 							if (item.obfuscate && !localhost) {
 
 								var settings = typeof item.obfuscate === "object" ? item.obfuscate : {

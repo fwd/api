@@ -1,7 +1,6 @@
 {
   "name": "@fwd/api",
-  "version": "1.0.3",
-  "description": "",
+  "version": "1.0.4",
   "main": "index.js",
   "scripts": {},
   "author": "Forward Miami <hello@forward.miami>",
