@@ -28,12 +28,12 @@ api.add({
 	parameters: [
 		{
 			name: "email",
-			type: "string"
+			type: "string",
 			required: true
 		},
 		{
 			name: "password",
-			type: "string"
+			type: "string",
 			required: true
 		},
 	],
