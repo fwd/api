@@ -19,6 +19,24 @@ const api = require('@fwd/api')
 api.add({
 	path: '/login',
 	method: 'post',
+	limit: true, // rate limiting
+	auth: (req) => {
+		if (isNotBot) { // pseudo code
+			return true
+		}
+	},
+	parameters: [
+		{
+			name: "email",
+			type: "string"
+			required: true
+		},
+		{
+			name: "password",
+			type: "string"
+			required: true
+		},
+	],
 	action: (req) => {
 		return new Promise((resolve, reject) => {
 			resolve("Ok")
