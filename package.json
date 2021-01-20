@@ -6,7 +6,7 @@
   "author": "Forward Miami <hello@forward.miami>",
   "license": "ISC",
   "dependencies": {
-    "@fwd/obfuscate": "github:fwd/obfuscate",
+    "@fwd/obfuscate": "0.0.1",
     "@fwd/server": "^1.0.22",
     "@node-minify/core": "^6.1.0",
     "@node-minify/html-minifier": "^6.1.0",

@@ -15,9 +15,12 @@ module.exports = {
 		this.server.use(action)
 	},
 
-	add(endpoints) {
-		this.serve(endpoints)
-	},
+	// add endpoint method
+	add(endpoints) { this.serve(endpoints) },
+	// nicknames
+	handle(endpoints) { this.add(endpoints) },
+	serve(endpoints) { this.add(endpoints) },
+	watch(endpoints) { this.add(endpoints) },
 
 	render(template, data) {
 
@@ -253,7 +256,7 @@ module.exports = {
 								    stringArrayThreshold: 1
 								}
 
-								var obfuscationResult = require('javascript-obfuscator').obfuscate(response.data, settings)
+								var obfuscationResult = require('@fwd/obfuscate').obfuscate(response.data, settings)
 
 								response.data = obfuscationResult.getObfuscatedCode()
 
