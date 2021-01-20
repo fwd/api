@@ -17,9 +17,9 @@ module.exports = {
 
 	// add endpoint method
 	add(endpoints) { this.serve(endpoints) },
+	
 	// nicknames
 	handle(endpoints) { this.add(endpoints) },
-	serve(endpoints) { this.add(endpoints) },
 	watch(endpoints) { this.add(endpoints) },
 
 	render(template, data) {
