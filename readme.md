@@ -16,15 +16,21 @@ npm install @fwd/api
 
 const api = require('@fwd/api')
 
-api.add({
+api.add([
+
+{
+	path: '/',
+	method: 'get',
+	action: (req) => {
+		return new Promise((resolve, reject) => {
+			resolve("Hello, World")
+		})
+	}
+},
+
+{
 	path: '/login',
 	method: 'post',
-	limit: true, // rate limiting
-	auth: (req) => {
-		if (isNotBot) { // pseudo code
-			return true
-		}
-	},
 	parameters: [
 		{
 			name: "email",
@@ -39,10 +45,13 @@ api.add({
 	],
 	action: (req) => {
 		return new Promise((resolve, reject) => {
+			var username = req.body.username
 			resolve("Ok")
 		})
 	}
-})
+}
+
+])
 
 api.start(80, __dirname)
 
@@ -59,12 +68,6 @@ api.start(80, __dirname)
 
 Contributions, issues and feature requests are welcome! Feel free to check [issues page](https://github.com/fwd/api/issues).
 
-## ⭐️ Show your support
-
-Give a star if this project helped you, and help us continue maintaining this project by contributing to it or becoming a sponsor.
-
-[Become a sponsor to fwd](https://github.com/sponsors/fwd)
-
 ## 📝 License
 
-Copyright © 2020 [Forward Miami](https://forward.miami). This project is [Apache-2.0](https://spdx.org/licenses/Apache-2.0.html) licensed.
+Copyright © 2020 [Forward Miami](https://forward.miami).
