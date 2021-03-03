@@ -1,9 +1,14 @@
-const _ = require('lodash')
-const path = require('path')
 const fs = require('fs')
 const ejs = require('ejs')
+const _ = require('lodash')
+const path = require('path')
 const server = require('@fwd/server')
-const rateLimit = require("express-rate-limit");
+const rateLimit = require("express-rate-limit")
+
+function validateEmail(email) {
+    const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(String(email).toLowerCase());
+}
 
 module.exports = {
 
@@ -109,7 +114,9 @@ module.exports = {
 			b.name = item.name || ''
 			b.slug = b.name.toLowerCase().split(' ').join('-')
 			b.group = item.group
-			b.caching = item.caching
+			b.cached = item.cached
+			b.minify = item.minify
+			b.obfuscate = item.obfuscate
 			b.version = item.version
 			b.path = item.path
 			b.method = item.method.toUpperCase()
@@ -136,21 +143,17 @@ module.exports = {
 
 			if (item.limit) {
 
-				var cooldown = item.limit && item.limit[0] ? item.limit[1] * 1000 : 60 * 1000 // 60 minutes
-				
-				var requests = item.limit && item.limit[1] ? item.limit[0] : 60 // 60
+				var limits = Array.isArray(item.limit) ? [(item.limit[0] * 1000), item.limit[1]] : [(60 * 1000), 60]
 
 				server.use(item.path, rateLimit({
-					windowMs: cooldown, // 60 minutes
-					max: requests,
+					windowMs: limits[0], // 15 minutes
+					max: limits[1],
 					handler: function (req, res) {
-
 					    res.send({
-					    	error: true,
 					    	code: 429,
-					    	message: "Too Many Requests."
+					    	error: true,
+					    	message: "You're doing that too much. Please wait."
 					    })
-
 					}
 				}))
 
@@ -160,8 +163,8 @@ module.exports = {
 
 				if (item.auth && !await item.auth(req)) {
 					res.send({
-						error: true,
 						code: 401,
+						error: true,
 						message: "Unauthorized"
 					})
 					return
@@ -170,7 +173,12 @@ module.exports = {
 				var localhost = req.get('host')
 					localhost = localhost.includes('localhost')
 
-				res.setHeader('X-Powered-By', 'Forward API')
+				var package = require('./package.json')
+
+				if (!item.harden) {			
+					res.setHeader('X-Powered-By', package.name)
+					res.setHeader('X-Powered-Version', package.version)
+				}
 
 				var cache = self.server.cache(item.path)
 
@@ -191,7 +199,7 @@ module.exports = {
 						return
 					}
 
-					res.send( cache )
+					res.send(cache)
 					
 					return
 
@@ -215,6 +223,10 @@ module.exports = {
 
 							if (req.query[a.name] && typeof exists != a.type) {
 								send.error.push(a.name + ' needs to be an ' + a.type)
+							}
+
+							if (req.query[a.name] && a.type == "email" && !validateEmail(exists)) {
+								send.error.push(a.name + ' is not a valid ' + a.type)
 							}
 
 						})
@@ -267,7 +279,6 @@ module.exports = {
 								if (item.minify === 'js') {
 
 									const minify = require('@node-minify/core');
-									// const htmlMinifier = require('@node-minify/html-minifier');
 									const uglifyES = require('@node-minify/uglify-es');
 
 									response.data = await minify({
@@ -302,13 +313,12 @@ module.exports = {
 								return
 							}
 
+							send.code = response.code || 200
+							send.cached = item.cached ? true : false
 							send.error = response.error || false
 
-							send.code = response.code || 200
-
-							send.message = response.message || "Ok"
-							
-							send.response = !response.code || response.code == 200 ? response : {}
+							if (response.message) send.message = response.message
+							if (response.data) send.response = response.data
 
 							if (item.cached) {
 								self.server.cache(item.path, send, expiration)
