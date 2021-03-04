@@ -359,9 +359,9 @@ module.exports = {
 
 	},
 
-	start(port, path) {
+	start(port, path, config) {
 		this.load()
-		this.server.start(port || 80, path || __dirname)
+		this.server.start(port || 80, path || __dirname, config)
 	}
 
 }
