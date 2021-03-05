@@ -244,7 +244,7 @@ module.exports = {
 
 					try {
 
-						console.time('execution')
+						console.time('runtime')
 
 						item.action(req).then(async (response) => {
 
@@ -319,7 +319,7 @@ module.exports = {
 
 							send.code = response.code || 200
 							
-							if (response.debug) send.runtime = console.timeEnd('someFunction')
+							if (response.debug) send.runtime = console.timeEnd('runtime')
 							if (response.cached) send.cached = response.cached
 							if (response.error) send.error = response.error
 							if (response.message) send.message = response.message
