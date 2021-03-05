@@ -319,15 +319,15 @@ module.exports = {
 								return
 							}
 							
-							send.response = response
-
 							send.code = response.code || 200
+							
+							send.response = response
 							
 							if (item.debug) {
 								var functionEnd = new Date().getTime();
 								send.runtime = {
-									server: `$(serverStart - serverStop) ms`,
-									function: `$(functionEnd - functionSart) ms`,
+									server: serverStart - serverStop +  'ms',
+									function: functionEnd - functionSart + 'ms',
 								}
 							}
 							
