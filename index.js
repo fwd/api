@@ -321,7 +321,7 @@ module.exports = {
 							
 							send.response = response
 							
-							if (item.debug) {
+							if (item.debug || self.server.config.debug) {
 								var functionEnd = new Date().getTime();
 								send.runtime = {
 									server: functionStart - serverStart +  ' ms',
@@ -374,6 +374,7 @@ module.exports = {
 
 	start(port, path, config) {
 		this.load()
+		if (config) this.server.config = config
 		this.server.start(port || 80, path || __dirname, config)
 	}
 
