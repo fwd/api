@@ -335,7 +335,7 @@ module.exports = {
 							}
 							
 							if (response.cached) send.cached = response.cached
-							if (response.error) send.error = response.error
+							if (response.error || response.error.length) send.error = response.error
 							if (response.message) send.message = response.message
 
 							if (item.cached) {
