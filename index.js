@@ -213,29 +213,31 @@ module.exports = {
 
 					if (item.parameters && item.parameters.filter(a => a.required).length) {
 
-						send.error = []
+						var errors = []
 
 						item.parameters.map(a => {
 
 							var exists = req.query[a.name] || req.body[a.name]
 
 							if (a.required && !exists) {
-								send.error.push(a.name + ' is required')
+								errors.push(a.name + ' is required')
 							}
 
 							if (req.query[a.name] && typeof exists != a.type) {
-								send.error.push(a.name + ' needs to be an ' + a.type)
+								errors.push(a.name + ' needs to be an ' + a.type)
 							}
 
 							if (req.query[a.name] && a.type == "email" && !validateEmail(exists)) {
-								send.error.push(a.name + ' is not a valid ' + a.type)
+								errors.push(a.name + ' is not a valid ' + a.type)
 							}
 
 						})
 
-						if (send.error.length) {
+						if (errors.length) {
 
 							send.code = 400
+
+							send.error = errors
 
 							res.send(send)
 
@@ -335,7 +337,7 @@ module.exports = {
 							}
 							
 							if (response.cached) send.cached = response.cached
-							if (response.error || Array.isArray(response.error) && response.error.length) send.error = response.error
+							if (response.error) send.error = response.error
 							if (response.message) send.message = response.message
 
 							if (item.cached) {
