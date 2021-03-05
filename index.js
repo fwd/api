@@ -242,7 +242,9 @@ module.exports = {
 						
 					}
 
-					try	{
+					try {
+
+						console.time('execution')
 
 						item.action(req).then(async (response) => {
 
@@ -312,13 +314,15 @@ module.exports = {
 								res.end()
 								return
 							}
+							
+							send.response = response.data
 
 							send.code = response.code || 200
-							send.cached = item.cached ? true : false
-							send.error = response.error || false
-
+							
+							if (response.debug) send.runtime = console.timeEnd('someFunction')
+							if (response.cached) send.cached = response.cached
+							if (response.error) send.error = response.error
 							if (response.message) send.message = response.message
-							if (response.data) send.response = response.data
 
 							if (item.cached) {
 								self.server.cache(item.path, send, expiration)
