@@ -243,8 +243,8 @@ module.exports = {
 					}
 
 					try {
-
-						console.time('runtime')
+						
+						var start = new Date().getTime()
 
 						item.action(req).then(async (response) => {
 
@@ -319,7 +319,11 @@ module.exports = {
 
 							send.code = response.code || 200
 							
-							if (item.debug) send.runtime = console.timeEnd('runtime')
+							if (item.debug) {
+								var end = new Date().getTime();
+								send.runtime = (end - start)
+							}
+							
 							if (response.cached) send.cached = response.cached
 							if (response.error) send.error = response.error
 							if (response.message) send.message = response.message
