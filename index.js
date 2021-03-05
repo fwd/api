@@ -56,9 +56,9 @@ module.exports = {
 
 				fs.readFile(templatePath, 'utf-8', function(err, body) {
 					
-					try	{
+					try {
 						var response = {}
-						response['Content-Type'] = 'text/html; charset=utf-8'
+						response['Content-Type'] = contentType || 'text/html; charset=utf-8'
 						response.data = ejs.render(body, data)
 						resolve(response)
 					} catch (e) {
