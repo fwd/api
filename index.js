@@ -315,7 +315,7 @@ module.exports = {
 								return
 							}
 							
-							send.response = response.data
+							send.response = response
 
 							send.code = response.code || 200
 							
