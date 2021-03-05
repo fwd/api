@@ -222,6 +222,8 @@ module.exports = {
 					try {
 						
 						var functionStart = new Date().getTime()
+						
+						req.render = self.render
 
 						item.action(req).then(async (response) => {
 
