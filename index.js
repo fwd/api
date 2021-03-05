@@ -20,33 +20,6 @@ module.exports = {
 		this.server.use(action)
 	},
 
-	// add endpoint method
-	add(endpoints) { this.serve(endpoints) },
-	
-	// nicknames
-	handle(endpoints) { this.add(endpoints) },
-	watch(endpoints) { this.add(endpoints) },
-
-	render(template, data) {
-
-		return new Promise((resolve, reject) => {
-
-			if (!template) {
-				console.log("Template is required")
-				return
-			}
-
-			try	{
-				var rendered = require('ejs').render(template, data)
-				resolve(rendered)
-			} catch(e) {
-				reject(e)
-			}
-
-		})
-
-	},
-
 	serve(endpoints) {
 
 		if (!endpoints) {
