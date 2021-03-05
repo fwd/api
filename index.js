@@ -135,6 +135,8 @@ module.exports = {
 		var self = this
 
 		this.endpoints.map((item) => {
+			
+			var serverStart = new Date().getTime()
 
 			if (!item.method || !item.path) {
 				console.log("Invalid method", item)
@@ -244,7 +246,9 @@ module.exports = {
 
 					try {
 						
-						var start = new Date().getTime()
+						var serverStop = new Date().getTime()
+						
+						var functionStart = new Date().getTime()
 
 						item.action(req).then(async (response) => {
 
@@ -320,8 +324,11 @@ module.exports = {
 							send.code = response.code || 200
 							
 							if (item.debug) {
-								var end = new Date().getTime();
-								send.runtime = `(end - start) ms`
+								var functionEnd = new Date().getTime();
+								send.runtime = {
+									server: `$(serverStart - serverStop) ms`,
+									function: `$(functionEnd - functionSart) ms`,
+								}
 							}
 							
 							if (response.cached) send.cached = response.cached
