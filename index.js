@@ -319,7 +319,7 @@ module.exports = {
 
 							send.code = response.code || 200
 							
-							if (response.debug) send.runtime = console.timeEnd('runtime')
+							if (item.debug) send.runtime = console.timeEnd('runtime')
 							if (response.cached) send.cached = response.cached
 							if (response.error) send.error = response.error
 							if (response.message) send.message = response.message
