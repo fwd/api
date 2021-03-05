@@ -321,7 +321,7 @@ module.exports = {
 							
 							if (item.debug) {
 								var end = new Date().getTime();
-								send.runtime = (end - start)
+								send.runtime = `(end - start) ms`
 							}
 							
 							if (response.cached) send.cached = response.cached
