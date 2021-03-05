@@ -339,23 +339,23 @@ module.exports = {
 
 			})
 
-			var same = _.filter(this.endpoints, (a) => item.path === a.path)
+// 			var same = _.filter(this.endpoints, (a) => item.path === a.path)
 
-			var defaultGet = _.filter(same, (a) => {
-				return a.method && a.method.includes('get')
-			})
+// 			var defaultGet = _.filter(same, (a) => {
+// 				return a.method && a.method.includes('get')
+// 			})
 
-			if (!defaultGet.length) {
+// 			if (!defaultGet.length) {
 
-				self.server.get(item.path, (req, res) => {
-					var send = {}
-					send.error = true
-					send.code = 404
-					send.response = 'This method only accepts ' + item.method.toUpperCase() + ' method.'
-					res.send(send)
-				})
+// 				self.server.get(item.path, (req, res) => {
+// 					var send = {}
+// 					send.error = true
+// 					send.code = 404
+// 					send.response = 'This method only accepts ' + item.method.toUpperCase() + ' method.'
+// 					res.send(send)
+// 				})
 
-			}
+// 			}
 
 		})
 
