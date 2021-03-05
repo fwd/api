@@ -326,8 +326,8 @@ module.exports = {
 							if (item.debug) {
 								var functionEnd = new Date().getTime();
 								send.runtime = {
-									server: serverStart - serverStop +  'ms',
-									function: functionEnd - functionStart + 'ms',
+									server: serverStop - serverStart +  ' ms',
+									function: functionEnd - functionStart + ' ms',
 								}
 							}
 							
