@@ -323,9 +323,13 @@ module.exports = {
 							
 							if (item.debug || self.server.config.debug) {
 								var functionEnd = new Date().getTime();
-								send.runtime = {
-									server: functionStart - serverStart +  ' ms',
-									function: functionEnd - functionStart + ' ms',
+								send.debug = {
+									time: server.timestamp('LLL'),
+									config: self.server.config,
+									runtime: {
+										server: functionStart - serverStart +  ' ms',
+										function: functionEnd - functionStart + ' ms',
+									}
 								}
 							}
 							
