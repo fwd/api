@@ -143,11 +143,11 @@ module.exports = {
 
 			if (item.limit) {
 
-				var limits = Array.isArray(item.limit) ? [(item.limit[0] * 1000), item.limit[1]] : [(60 * 1000), 60]
+				var limits = Array.isArray(item.limit) ? [(item.limit[1] * 1000), item.limit[0]] : [1000, 5]
 
 				server.use(item.path, rateLimit({
-					windowMs: limits[0], // 15 minutes
-					max: limits[1],
+					windowMs: limits[1], // 60 seconds
+					max: limits[0],
 					handler: function (req, res) {
 					    res.send({
 					    	code: 429,
@@ -259,7 +259,7 @@ module.exports = {
 								return
 							}
 
-							if (item.obfuscate && !localhost) {
+							if (response['Content-Type'] && item.obfuscate && !localhost) {
 
 								var settings = typeof item.obfuscate === "object" ? item.obfuscate : {
 								    compact: false,
@@ -278,7 +278,7 @@ module.exports = {
 
 							}
 
-							if (item.minify && !localhost) {
+							if (response['Content-Type'] && item.minify && !localhost) {
 
 								if (item.minify === 'js') {
 
@@ -321,11 +321,12 @@ module.exports = {
 							
 							send.response = response
 							
-							if (item.debug || self.server.config.debug) {
+							if (item.debug || self.server.config && self.server.config.debug) {
 								var functionEnd = new Date().getTime();
 								send.debug = {
 									time: server.timestamp('LLL'),
 									config: self.server.config,
+									version: package.version,
 									runtime: {
 										server: functionStart - serverStart +  ' ms',
 										function: functionEnd - functionStart + ' ms',
