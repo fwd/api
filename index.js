@@ -123,7 +123,7 @@ module.exports = {
 
 			if (item.limit) {
 
-				var limits = Array.isArray(item.limit) ? [(item.limit[1] * 1000), item.limit[0]] : [1000, 5]
+				var limits = Array.isArray(item.limit) ? [item.limit[0], (item.limit[1] * 1000)] : [60, 60000]
 
 				server.use(item.path, rateLimit({
 					windowMs: limits[1], // 60 seconds
