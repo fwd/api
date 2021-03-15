@@ -143,7 +143,7 @@ module.exports = {
 				
 				var serverStart = new Date().getTime()
 
-				if (item.auth && !await item.auth(req)) {
+				if (item.auth && typeof item.auth == 'function' && !await item.auth(req)) {
 					res.send({
 						code: 401,
 						error: true,
