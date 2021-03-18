@@ -303,6 +303,8 @@ module.exports = {
 							
 							send.code = response.code || 200
 							
+							delete response.code
+							
 							send.response = response
 							
 							if (item.debug || self.server.config && self.server.config.debug) {
