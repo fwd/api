@@ -301,8 +301,13 @@ module.exports = {
 								return
 							}
 							
+							if (response.cached) send.cached = response.cached
+							if (response.message) send.message = response.message
+							if (response.error) send.error = response.error
+							
 							send.code = response.code || 200
 							
+							delete response.error
 							delete response.code
 							
 							send.response = response
@@ -320,10 +325,6 @@ module.exports = {
 								}
 							}
 							
-							if (response.cached) send.cached = response.cached
-							if (response.error) send.error = response.error
-							if (response.message) send.message = response.message
-
 							if (item.cached) {
 								self.server.cache(item.path, send, expiration)
 							}
