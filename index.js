@@ -310,9 +310,7 @@ module.exports = {
 							delete response.error
 							delete response.code
 							
-							if (!_.isEmpty(response)) {
-								send.response = response
-							}
+							send.response = response
 							
 							if (item.debug || self.server.config && self.server.config.debug) {
 								var functionEnd = new Date().getTime();
