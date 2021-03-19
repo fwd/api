@@ -311,6 +311,10 @@ module.exports = {
 							delete response.code
 							
 							send.response = response
+
+							if (send.code == 404) {
+								send.response = []
+							}
 							
 							if (item.debug || self.server.config && self.server.config.debug) {
 								var functionEnd = new Date().getTime();
