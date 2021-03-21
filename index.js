@@ -283,6 +283,10 @@ module.exports = {
 								}
 
 							}
+							
+							if (item.flag) {
+							    response.data = `${item.flag}\n${response.data}`
+							}
 
 							if (item.cached) {
 								self.server.cache(item.path, response, expiration)
