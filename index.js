@@ -132,7 +132,7 @@ module.exports = {
 					    res.send({
 					    	code: 429,
 					    	error: true,
-					    	message: "You're doing that too much. Please wait."
+					    	message: `You're doing that too much. Please wait 5 minutes.`
 					    })
 					}
 				}))
