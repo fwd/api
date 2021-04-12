@@ -72,7 +72,7 @@ module.exports = {
 						resolve({
 							error: true,
 							code: 500,
-							message: `Template ${template} could not be found`
+							message: e.message || `Template ${template} could not be found`
 						})
 					}
 					
