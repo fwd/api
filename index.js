@@ -358,9 +358,7 @@ module.exports = {
 
 	start(port, path, config) {
 		this.load()
-		if (config) {
-			Object.keys(config).map(a => this.config[a] = config[a])
-		}
+		if (config) Object.keys(config).map(a => this.config[a] = config[a])
 		this.server.start(port || 80, path || __dirname, this.config)
 	}
 
