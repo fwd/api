@@ -16,6 +16,8 @@ module.exports = {
 
 	endpoints: [],
 
+	config: {},
+
 	use(action) {
 		this.server.use(action)
 	},
@@ -320,11 +322,11 @@ module.exports = {
 								send.response = []
 							}
 							
-							if (item.debug || self.server.config && self.server.config.debug) {
+							if (item.debug || self.config && self.config.debug) {
 								var functionEnd = new Date().getTime();
 								send.debug = {
 									time: server.timestamp('LLL'),
-									config: self.server.config,
+									config: self.config,
 									version: package.version,
 									runtime: {
 										server: functionStart - serverStart +  ' ms',
@@ -356,8 +358,10 @@ module.exports = {
 
 	start(port, path, config) {
 		this.load()
-		if (config) this.server.config = config
-		this.server.start(port || 80, path || __dirname, config)
+		if (config) {
+			Object.keys(config).map(a => this.config[a] = config[a])
+		}
+		this.server.start(port || 80, path || __dirname, this.config)
 	}
 
 }
