@@ -1,6 +1,6 @@
 <h1 align="center">@fwd/api 🔐</h1>
 
-> An NPM package for bootstraping REST API applications.
+> An NPM package for bootstraping a API in NodeJS.
 
 ## Install
 
@@ -48,7 +48,7 @@ api.add([
 	}
 ])
 
-api.start(80, __dirname)
+api.start(8080)
 
 ```
 
