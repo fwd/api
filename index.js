@@ -339,7 +339,17 @@ module.exports = {
 								self.server.cache(item.path, send, expiration)
 							}
 
-							res.send(send)
+							function isCircular(d) {
+							  try {JSON.stringify(d)}
+							  catch (e) {return true}
+							  return false
+							}
+
+							if (isCircular(send)) {
+								console.log("yooo", send)
+							}
+
+							res.send(isCircular(send) ? {} : send)
 							
 						})
 
