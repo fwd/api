@@ -204,9 +204,11 @@ module.exports = {
 							if (a.required && !exists) {
 								errors.push(a.name + ' is required')
 							}
+							
+							a.type = a.type || 'string'
 
 							if (req.query[a.name] && typeof exists != a.type) {
-								errors.push(a.name + ' needs to be an ' + a.type)
+								errors.push(a.name + ' needs to be type ' + a.type)
 							}
 
 							if (req.query[a.name] && a.type == "email" && !validateEmail(exists)) {
