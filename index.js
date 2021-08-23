@@ -134,7 +134,7 @@ module.exports = {
 					    res.send({
 					    	code: 429,
 					    	error: true,
-					    	message: `You're doing that too much. Please wait 5 minutes.`
+					    	message: `You're doing that too much. Please wait ${ item.limit[1] } minute(s).`
 					    })
 					}
 				}))
