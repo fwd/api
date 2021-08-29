@@ -311,14 +311,17 @@ module.exports = {
 							
 							if (response.cached) send.cached = response.cached
 							if (response.message) send.message = response.message
-							if (response.error) send.error = response.error
+							
+							if (response.error) {
+								send.error = response.error
+							} else {
+								send.response = response
+							}
 							
 							send.code = response.code || 200
 							
 							delete response.error
 							delete response.code
-							
-							send.response = response
 
 							if (send.code == 404) {
 								send.response = []
