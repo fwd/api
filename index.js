@@ -318,7 +318,7 @@ module.exports = {
 								send.response = response
 							}
 							
-							send.code = response.code || 200
+							send.code = response.code || response.error ? 400 : 200
 							
 							delete response.error
 							delete response.code
@@ -350,11 +350,11 @@ module.exports = {
 							  return false
 							}
 
-							if (isCircular(send)) {
-								console.log("yooo", send)
+							if (self.config.response == false) {
+								res.send(isCircular(send) ? {} : send.response)
+							} else {
+								res.send(isCircular(send) ? {} : send)
 							}
-
-							res.send(isCircular(send) ? {} : send)
 							
 						})
 
