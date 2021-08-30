@@ -351,7 +351,7 @@ module.exports = {
 							}
 
 							if (self.config.response == false) {
-								res.send(isCircular(send) ? {} : send.response)
+								res.send(isCircular(send) ? {} : send.response ? send.response : send)
 							} else {
 								res.send(isCircular(send) ? {} : send)
 							}
