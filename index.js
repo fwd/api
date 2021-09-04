@@ -1,380 +1,203 @@
-const fs = require('fs')
-const ejs = require('ejs')
-const _ = require('lodash')
-const path = require('path')
-const server = require('@fwd/server')
-const rateLimit = require("express-rate-limit")
+const fs = require("fs")
+const cors = require('cors')
+const axios = require('axios')
+const moment = require('moment')
+const cron = require('@fwd/cron')
+const cache = require('@fwd/cache')
+const database = require('@fwd/database')
 
-function validateEmail(email) {
-    const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re.test(String(email).toLowerCase());
-}
+const express = require('express')
+const app = express();
 
-module.exports = {
+var server = {
 
-	server: server,
+	path: './',
+	routes: [],
+	http: axios,
 
-	endpoints: [],
-
-	config: {},
-
-	use(action) {
-		this.server.use(action)
-	},
-
-	serve(endpoints) {
-
-		if (!endpoints) {
-			console.log("Invalid endpoints provided", endpoints)
-			return
-		}
-
-		if (Array.isArray(endpoints) && !endpoints.length) {
-			console.log("Empty endpoints array provided", endpoints)
-			return
-		}
-
-		if (Array.isArray(endpoints)) {
-			endpoints.map(a => this.endpoints.push(a))
-			return
-		}
-
-		if (!Array.isArray(endpoints)) {
-			this.endpoints.push(endpoints)
-			return
-		}
-
-	},
-
-	// add endpoint method
-	add(endpoints) { this.serve(endpoints) },
-
-	// nicknames
-	handle(endpoints) { this.add(endpoints) },
-	watch(endpoints) { this.add(endpoints) },
-
-	render(template, data, contentType) {
-
+	exec(cmd) {
+		const exec = require('child_process').exec;
 		return new Promise((resolve, reject) => {
-
-			if (!template || typeof template !== 'string') return reject({ message: "template is required"})
-
-			try	{
-
-				var templatePath = template && template.includes('.') ? template : path.join(__dirname, `./views/${template}.ejs`)
-
-				fs.readFile(templatePath, 'utf-8', function(err, body) {
-					
-					try {
-						var response = {}
-						response['Content-Type'] = contentType || 'text/html; charset=utf-8'
-						response.data = ejs.render(body, data)
-						resolve(response)
-					} catch (e) {
-						resolve({
-							error: true,
-							code: 500,
-							message: e.message || `Template ${template} could not be found`
-						})
-					}
-					
-
-				});
-
-			} catch (e) {
-				resolve(e)
-			}
-
-		})
-
-	},
-
-	methods() {
-
-		var methods = this.endpoints.map((item) => {
-			var b = {}
-			b.name = item.name || ''
-			b.slug = b.name.toLowerCase().split(' ').join('-')
-			b.group = item.group
-			b.cached = item.cached
-			b.minify = item.minify
-			b.obfuscate = item.obfuscate
-			b.version = item.version
-			b.path = item.path
-			b.method = item.method.toUpperCase()
-			b.endpoint = item.path
-			b.endpoint = req.protocol + '://' + req.get('host') + b.endpoint
-			b.parameters = item.parameters
-			return b
-		})
-
-		return _.groupBy(methods, 'group')
-
-	},
-
-	load() {
-
-		var self = this
-
-		this.endpoints.map((item) => {
-
-			if (!item.method || !item.path) {
-				console.log("Invalid method", item)
-				return
-			}
-
-			if (item.limit) {
-
-				var limits = Array.isArray(item.limit) ? [item.limit[0], (item.limit[1] * 1000)] : [60, 60000]
-
-				server.use(item.path, rateLimit({
-					windowMs: limits[1], // 60 seconds
-					max: limits[0],
-					handler: function (req, res) {
-					    res.send({
-					    	code: 429,
-					    	error: true,
-					    	message: `You're doing that too much. Please wait before trying again.`
-					    })
-					}
-				}))
-
-			}
-
-			self.server[item.method](item.path, async (req, res) => {
-				
-				var serverStart = new Date().getTime()
-
-				if (item.auth && typeof item.auth == 'function' && !await item.auth(req)) {
-					res.send({
-						code: 401,
-						error: true,
-						message: "Unauthorized"
-					})
-					return
-				}
-
-				var localhost = req.get('host')
-					localhost = localhost.includes('localhost')
-
-				var package = require('./package.json')
-
-				if (!item.harden) {			
-					res.setHeader('X-Powered-By', package.name)
-					res.setHeader('X-Powered-Version', package.version)
-				}
-
-				var cache = self.server.cache(item.path)
-
-				if (item.cached && cache && !localhost) {
-
-					res.setHeader('X-Cached', true)
-
-					if (cache && cache['Content-Type']) {
-						var headers = {
-							'Content-Type': cache['Content-Type']
-						}
-						if (cache['Content-Length']) {
-							headers['Content-Length'] = cache['Content-Length']
-						}
-						res.writeHead(200, headers);
-						res.write(cache.data);
-						res.end()
-						return
-					}
-
-					res.send(cache)
-					
-					return
-
-				}
-			
-				let send = {}
-				
-				return new Promise(async () => {
-
-					if (item.parameters && item.parameters.filter(a => a.required).length) {
-
-						var errors = []
-
-						item.parameters.map(a => {
-
-							var exists = req.query[a.name] || req.body[a.name]
-
-							if (a.required && !exists) {
-								errors.push(a.name + ' is required')
-							}
-							
-							a.type = a.type || 'string'
-
-							if (req.query[a.name] && typeof exists != a.type) {
-								errors.push(a.name + ' needs to be type ' + a.type)
-							}
-
-							if (req.query[a.name] && a.type == "email" && !validateEmail(exists)) {
-								errors.push(a.name + ' is not a valid ' + a.type)
-							}
-
-						})
-
-						if (errors.length) {
-
-							send.code = 400
-
-							send.error = errors
-
-							res.send(send)
-
-							return
-						}
-						
-					}
-
-					try {
-						
-						var functionStart = new Date().getTime()
-						
-						req.render = self.render
-
-						item.action(req).then(async (response) => {
-
-							var expiration = item.cached ? self.server.time( (typeof item.cached === "number" ? item.cached : 24 ) , 'hours') : null
-
-							response = response || {}
-
-							if (response && response.redirect) {
-								res.redirect(response.redirect)
-								return
-							}
-
-							if (response['Content-Type'] && item.obfuscate && !localhost) {
-
-								var settings = typeof item.obfuscate === "object" ? item.obfuscate : {
-								    compact: false,
-								    controlFlowFlattening: true,
-								    controlFlowFlatteningThreshold: 1,
-								    numbersToExpressions: true,
-								    simplify: true,
-								    shuffleStringArray: true,
-								    splitStrings: true,
-								    stringArrayThreshold: 1
-								}
-
-								var obfuscationResult = require('@fwd/obfuscate').obfuscate(response.data, settings)
-
-								response.data = obfuscationResult.getObfuscatedCode()
-
-							}
-
-							if (response['Content-Type'] && item.minify && !localhost) {
-
-								if (item.minify === 'js') {
-
-									const minify = require('@node-minify/core');
-									const uglifyES = require('@node-minify/uglify-es');
-
-									response.data = await minify({
-									  compressor: uglifyES,
-									  content: response.data,
-									  options: {
-									    compress: {
-									    	passes: 2
-									    }
-									  },
-									  callback: function(err, min) {}
-									})
-
-								}
-
-							}
-							
-							if (item.flag) {
-							    response.data = `${item.flag}\n${response.data}`
-							}
-
-							if (item.cached) {
-								self.server.cache(item.path, response, expiration)
-							}
-
-							if (response && response['Content-Type']) {
-								var headers = {
-									'Content-Type': response['Content-Type']
-								}
-								if (response['Content-Length']) {
-									headers['Content-Length'] = response['Content-Length']
-								}
-								res.writeHead(200, headers);
-								res.write(response.data);
-								res.end()
-								return
-							}
-							
-							if (response.cached) send.cached = response.cached
-							if (response.message) send.message = response.message
-							
-							if (response.error) {
-								send.error = response.error
-							} else {
-								send.response = response
-							}
-							
-							send.code = response.code || response.error ? 400 : 200
-							
-							delete response.error
-							delete response.code
-
-							if (send.code == 404) {
-								send.response = []
-							}
-							
-							if (item.debug || self.config && self.config.debug) {
-								var functionEnd = new Date().getTime();
-								send.debug = {
-									time: server.timestamp('LLL'),
-									config: self.config,
-									version: package.version,
-									runtime: {
-										server: functionStart - serverStart +  ' ms',
-										function: functionEnd - functionStart + ' ms',
-									}
-								}
-							}
-							
-							if (item.cached) {
-								self.server.cache(item.path, send, expiration)
-							}
-
-							function isCircular(d) {
-							  try {JSON.stringify(d)}
-							  catch (e) {return true}
-							  return false
-							}
-
-							if (self.config.response == false) {
-								res.send(isCircular(send) ? {} : send.response ? send.response : send)
-							} else {
-								res.send(isCircular(send) ? {} : send)
-							}
-							
-						})
-
-					} catch (e) {
-						send.response = e.message
-						res.send(send)
-					}
-					
-				})
-
+			exec(cmd, (error, stdout, stderr) => {
+			    if (error) {
+					console.log(error);
+			    }
+			    resolve(stdout ? stdout : stderr);
 			})
-
 		})
+	},
+	
+	wait(delay) {
+		return this.sleep(delay)
+	},
+
+	sleep(delay) {
+		return new Promise((resolve) => {
+			setTimeout(() => {
+				resolve()
+			}, delay)
+		})
+	},
+	
+	time(int, string) {
+		return require('@fwd/time')(int, string)
+	},
+	
+	timestamp(format, timezone) {
+
+		var timestamp = moment()
+
+		if (timezone) {
+			
+			require('moment-timezone')
+
+			if (timezone === 'us-east') timezone = 'America/New_York'
+			if (timezone === 'us-west') timezone = 'America/Los_Angeles'
+
+			timestamp = timestamp.tz(timezone)
+
+		}
+
+		if (format) {
+			timestamp = timestamp.format(format || 'LLL')
+		} else {
+			timestamp = timestamp.unix()
+		}
+
+		return timestamp
+
+	},
+
+	cron(action, interval, runImmediately) {
+
+		if (typeof interval === 'string') {
+	
+			var phrase = interval.split(' ')
+
+			var repeat = phrase[0]
+			var int = phrase[1]
+			var rate = phrase[2]
+
+			interval = this.time(int, rate)
+
+		}
+
+		if (runImmediately) {
+			action()
+		}
+		
+		var cron = setInterval(() => {
+			action()
+		}, interval)
+		
+		return cron
+
+	},
+	
+	database: (plugin, config) => {
+		return database(plugin, config)
+	},
+
+	uuid(length, version, prepend, no_dashes) {
+
+		var uuid = `xxxxxxx-xxxx-${ version ? version : 'x' }xxx-xxxx-xxxxxxxx`.replace(/[xy]/g, function(c) {
+			var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+			return v.toString(16)
+		})
+		
+		if (length) {
+			uuid = uuid.slice(0, typeof length === 'number' ? length : 7)
+		}
+
+		if (no_dashes) {
+			uuid = uuid.split('-').join('')
+		}
+
+		if (prepend) {
+			uuid = `${prepend}${uuid}`
+		}
+
+		return uuid
 
 	},
 
 	start(port, path, config) {
-		this.load()
-		if (config) Object.keys(config).map(a => this.config[a] = config[a])
-		this.server.start(port || 80, path || __dirname, this.config)
-	}
+		
+		var self = this
+		
+		config = config || {}
 
+		if (path) this.path = path
+
+		var views = this.path ? this.path + '/views' : 'views'
+		var public = this.path ? this.path + '/public' : 'public'
+		var uploads = this.path ? this.path + '/uploads' : 'uploads'
+
+		app.use(cors())
+
+		app.use(express.json({
+			limit: config.jsonLimit || '999mb'
+		}))
+		
+		if (config.extended) {
+			app.use(express.urlencoded({extended: true}))
+		}
+
+		app.set('view engine', config.viewEngine || 'ejs');
+
+		if (fs.existsSync(views)) {
+		   app.set('views', config.viewsFolder || views);
+		}
+		
+		var maxAge = config.maxAge ? config.maxAge : 'no-store'
+
+		app.use(express.static(config.publicFolder || public, { maxAge }))
+		
+		if (config.uploadFolder) {
+			app.use(express.static(config.uploadFolder, { maxAge }))
+		}
+
+		port = port || 80
+
+		this.routes.map(route => {
+			if (route.middleware) {
+				app[route.method](route.path, route.middleware, function(req, res) {
+					route.action(req, res)
+				})
+				return
+			}
+			app[route.method](route.path, function(req, res) {
+				route.action(req, res)
+			})
+		})
+		
+		console.log( config.browserUrl || "http://localhost:" + port )
+		
+		app.listen(port)
+
+	},
+	use(path, plugin) {
+		if (path && plugin) {
+			app.use(path, plugin)
+			return
+		}
+		app.use(path)
+	},
+	cache(key, value, exp) {
+		return cache(key, value, exp)
+	}
 }
+
+var methods = ['get', 'post', 'put', 'patch', 'delete']
+
+methods.map((method) => {
+	server[method] = function(path, action) {
+		this.routes.push({
+			method: method,
+			path: path,
+			action: action
+		})
+	}
+})
+
+module.exports = server
