@@ -310,8 +310,7 @@ module.exports = {
 							}
 							
 							if (response && response._raw) {
-								delete response._raw
-								res.send(response)
+								res.send(response._raw)
 								return
 							}
 							
