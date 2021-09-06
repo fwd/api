@@ -309,6 +309,12 @@ module.exports = {
 								return
 							}
 							
+							if (response && response._raw) {
+								delete response._raw
+								res.send(response)
+								return
+							}
+							
 							if (response.cached) send.cached = response.cached
 							if (response.message) send.message = response.message
 							
