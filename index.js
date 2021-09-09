@@ -285,6 +285,32 @@ module.exports = {
 									})
 
 								}
+								
+								if (item.minify === 'css') {
+
+									function minifyCSS(_content) {
+									    var content = _content;
+									    content = content.replace( /\/\*(?:(?!\*\/)[\s\S])*\*\/|[\r\n\t]+/g, '' );
+									    content = content.replace( / {2,}/g, ' ' );
+									    content = content.replace( / ([{:}]) /g, '$1' );
+									    content = content.replace( /([;,]) /g, '$1' );
+									    content = content.replace( / !/g, '!' );
+									    return content;
+									}
+									
+									response.data = minifyCSS(response.data)
+
+								}
+								
+								if (item.minify === 'html') {
+
+									function minifyHTML( s ){
+										return s.replace(/\>[\r\n ]+\</g, "><") .replace(/(<.*?>)|\s+/g, (m, $1) => $1 ? $1 : ' ') .trim()
+									}
+									
+									response.data = minifyHTML(response.data)
+
+								}
 
 							}
 							
