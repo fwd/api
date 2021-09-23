@@ -138,6 +138,7 @@ module.exports = {
 					    })
 					},
 					skip: function(req, res) {
+						if (req.method !== item.method) return true
 						var url = req.originalUrl.toLowerCase()
 						if ( url.includes('.png') || url.includes('.gif') || url.includes('.jpg') || url.includes('.jpeg') || url.includes('.pdf') || url.includes('.mp4') || url.includes('.mp3') ) {
 							return true
