@@ -1,6 +1,6 @@
 <h1 align="center">@fwd/api 🔐</h1>
 
-> An NPM package for bootstraping a API in NodeJS.
+> An NPM package for bootstraping NodeJS APIs.
 
 ## Install
 
