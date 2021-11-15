@@ -17,7 +17,6 @@
     "fs": "0.0.1-security",
     "glob": "^7.1.6",
     "node-minify": "^3.6.0",
-    "node-sass": "^4.14.1",
     "path": "^0.12.7",
     "querystring": "^0.2.0",
     "url-parse": "^1.4.7"
