@@ -12,6 +12,8 @@ function validateEmail(email) {
 
 module.exports = {
 
+	limits: true,
+
 	server: server,
 
 	endpoints: [],
@@ -125,7 +127,7 @@ module.exports = {
 				return
 			}
 
-			if (item.limit) {
+			if (this.limits && item.limit) {
 
 				var limits = Array.isArray(item.limit) ? [item.limit[0], (item.limit[1] * 1000)] : [60, 60000]
 
