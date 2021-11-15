@@ -117,6 +117,8 @@ module.exports = {
 		var self = this
 
 		this.endpoints.map((item) => {
+			
+			item.method = item.method || 'get'
 
 			if (!item.method || !item.path) {
 				console.log("Invalid method", item)
