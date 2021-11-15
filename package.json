@@ -2,7 +2,7 @@
   "name": "@fwd/api",
   "version": "1.0.10",
   "main": "index.js",
-  "author": "Forward Miami <hello@forward.miami>",
+  "author": "Fresh Web Designs <hello@fwd.dev>",
   "license": "MIT",
   "dependencies": {
     "@fwd/obfuscate": "github:fwd/obfuscate",
