@@ -154,6 +154,8 @@ module.exports = {
 
 			self.server[item.method](item.path, async (req, res) => {
 				
+				if (!req.get('host')) return res.send("?")
+				
 				var serverStart = new Date().getTime()
 
 				if (item.auth && typeof item.auth == 'function' && !await item.auth(req)) {
@@ -166,7 +168,7 @@ module.exports = {
 				}
 
 				var localhost = req.get('host')
-					localhost = localhost.includes('localhost')
+				    localhost = localhost && localhost.includes('localhost')
 
 				var package = require('./package.json')
 
