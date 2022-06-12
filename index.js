@@ -5,11 +5,6 @@ const path = require('path')
 const server = require('@fwd/server')
 const rateLimit = require("express-rate-limit")
 
-function validateEmail(email) {
-    const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re.test(String(email).toLowerCase());
-}
-
 module.exports = {
 
 	limits: true,
@@ -224,7 +219,7 @@ module.exports = {
 								errors.push(a.name + ' needs to be type ' + a.type)
 							}
 
-							if (req.query[a.name] && a.type == "email" && !validateEmail(exists)) {
+							if (req.query[a.name] && a.type == "email" && !server.isEmail(exists)) {
 								errors.push(a.name + ' is not a valid ' + a.type)
 							}
 

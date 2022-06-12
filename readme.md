@@ -1,17 +1,16 @@
-<h1 align="center">@fwd/api 🔐</h1>
+# fwd/api
 
-> An NPM package for bootstraping NodeJS APIs.
+> Bootstrap REST APIs in NodeJS.
 
 ## Install
 
 ```sh
-npm install fwd/api
+npm install @fwd/api
 ```
 
 ## Usage
 
 ```js
-
 const api = require('@fwd/api')
 
 api.add([
@@ -54,7 +53,7 @@ api.start(8080)
 
 ## 👤 Author
 
-**Forward Miami**
+**Fresh Web Designs**
 
 * Github: [@fwd](https://github.com/fwd)
 * Website: [https://forward.miami](https://forward.miami)
@@ -67,7 +66,7 @@ Contributions, issues and feature requests are welcome! Feel free to check [issu
 
 MIT License
 
-Copyright © 2021 [Forward Miami](https://forward.miami).
+Copyright © [Fresh Web Designs](https://fwd.dev).
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
