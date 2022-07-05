@@ -116,7 +116,7 @@ module.exports = {
 
 		this.endpoints.map((item) => {
 			
-			item.method = item.method || 'get'
+			item.method = item.method ? item.method.toUpperCase() : 'get'
 
 			if (!item.method || !item.path) {
 				console.log("Invalid method", item)
@@ -148,7 +148,10 @@ module.exports = {
 
 			}
 
-			self.server[item.method](item.path, async (req, res) => {
+			// Statistical planning. Someone will eventually use 'GeT' instead of 'get'
+			// item.method = item.method ? item.method.toLowerCase() : item.method.toLowerCase()
+
+			this.server[item.method](item.path, async (req, res) => {
 				
 				if (!req.get('host')) return res.send("?")
 				
