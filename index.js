@@ -116,7 +116,7 @@ module.exports = {
 
 		this.endpoints.map((item) => {
 			
-			item.method = item.method ? item.method.toUpperCase() : 'get'
+			item.method = item.method ? item.method.toLowerCase() : 'get'
 
 			if (!item.method || !item.path) {
 				console.log("Invalid method", item)
