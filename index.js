@@ -347,6 +347,11 @@ module.exports = {
 								return
 							}
 							
+							if (self.config.response && (self.config.response === "raw" || self.config.response === true)) {
+								res.send(response)
+								return
+							}
+
 							if (response && response._raw) {
 								res.send(response._raw)
 								return
