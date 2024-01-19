@@ -40,8 +40,8 @@ api.add([
 		],
 		action: (req) => {
 			return new Promise((resolve, reject) => {
-				var username = req.body.username
-				resolve("Ok")
+				var email = req.body.email
+				resolve(`Hello, ${email}`)
 			})
 		}
 	}
